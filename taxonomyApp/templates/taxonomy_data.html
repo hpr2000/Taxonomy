@@ -1,0 +1,137 @@
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <title>Dynamic DataTable</title>#}
+{#    <!-- Include necessary CSS and DataTables JavaScript -->#}
+{#    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">#}
+{#</head>#}
+{#<body>#}
+{#    <table id="example" class="display" style="width:100%">#}
+{#        <thead>#}
+{#            <!-- Column headers will be generated dynamically -->#}
+{#        </thead>#}
+{#        <tbody>#}
+{#            <!-- Table body will be populated dynamically -->#}
+{#        </tbody>#}
+{#    </table>#}
+{##}
+{#    <!-- Include jQuery and DataTables JavaScript -->#}
+{#    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>#}
+{#    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>#}
+{##}
+{#    <script>#}
+{#        $(document).ready(function () {#}
+{#            const dynamicData = JSON.parse('{{ json_data | safe }}');#}
+{##}
+{#            function flattenHierarchicalData(node, level, flattenedData) {#}
+{#                flattenedData.push({ id: node.id, name: node.title, level: level });#}
+{##}
+{#                if (node.children) {#}
+{#                    node.children.forEach(child => {#}
+{#                        flattenHierarchicalData(child, level + 1, flattenedData);#}
+{#                    });#}
+{#                }#}
+{#            }#}
+{##}
+{#            const flattenedNodes = [];#}
+{#            dynamicData.forEach(node => {#}
+{#                flattenHierarchicalData(node, 1, flattenedNodes);#}
+{#            });#}
+{##}
+{#            const uniqueLevels = Array.from(new Set(flattenedNodes.map(node => node.level)));#}
+{##}
+{#            const columns = uniqueLevels.map(level => ({#}
+{#                title: `Level ${level}`,#}
+{#                data: flattenedNodes.filter(node => node.level === level).map(node => node.name)#}
+{#            }));#}
+{##}
+{#            $('#example').DataTable({#}
+{#                data: columns,#}
+{#                columns: columns.map(column => ({ title: column.title })),#}
+{#            });#}
+{#        });#}
+{#    </script>#}
+{#</body>#}
+{#</html>#}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Dynamic DataTable</title>
+    <!-- Include necessary CSS and DataTables JavaScript -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+</head>
+<body>
+    <table id="example" class="display" style="width:100%">
+        <thead>
+            <!-- Column headers will be generated dynamically -->
+        </thead>
+        <tbody>
+            <!-- Table body will be populated dynamically -->
+        </tbody>
+    </table>
+
+    <!-- Include jQuery and DataTables JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            const dynamicData = JSON.parse('{{ json_data | safe }}');
+
+            function populateTable(data) {
+                const flattenedData = [];
+
+                function flattenHierarchicalData(node, level) {
+                    flattenedData.push({
+                        id: node.id,
+                        name: node.title,
+                        level: level
+                    });
+
+                    if (node.children) {
+                        node.children.forEach(child => {
+                            flattenHierarchicalData(child, level + 1);
+                        });
+                    }
+                }
+
+                data.forEach(node => {
+                    flattenHierarchicalData(node, 1);
+                });
+
+                const uniqueLevels = Array.from(new Set(flattenedData.map(node => node.level)));
+                const columns = uniqueLevels.map(level => ({
+                    title: `Level ${level}`
+                }));
+
+                // Create the header row dynamically
+                const headerRow = columns.map(column => `<th>${column.title}</th>`).join('');
+                $('#example thead').html(`<tr>${headerRow}</tr>`);
+
+                // Prepare data for the DataTable
+                const tableData = [];
+                flattenedData.forEach(node => {
+                    if (!tableData[node.id]) {
+                        tableData[node.id] = [];
+                    }
+                    tableData[node.id][node.level - 1] = node.name;
+                });
+
+                // Remove any undefined values in the array
+                const filteredTableData = tableData.map(row => row.filter(cell => cell !== undefined));
+
+                // Populate the DataTable
+                $('#example').DataTable({
+                    data: filteredTableData,
+                    columns: columns.map((_, index) => ({ title: columns[index].title })),
+                });
+            }
+
+            populateTable(dynamicData);
+        });
+    </script>
+</body>
+</html>
+
