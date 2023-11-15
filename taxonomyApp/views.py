@@ -4,8 +4,8 @@
 #
 # def get_taxonomy_data():
 #     uri = "bolt://localhost:7687"  # Your Neo4j URI
-#     user = "neo4j"
-#     password = "hardi1902"
+#     user = "username"
+#     password = "password"
 #
 #     driver = GraphDatabase.driver(uri, auth=(user, password))
 #
@@ -51,7 +51,7 @@ def get_hierarchy(request):
 
 
 def get_data(request):
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "hardi1902"))
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("username", "password"))
 
     # Execute your Cypher query
     with driver.session() as session:
@@ -82,7 +82,7 @@ def get_data(request):
 #
 # def get_hierarchy(request):
 #     # Connect to your Neo4j database
-#     driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "hardi1902"))
+#     driver = GraphDatabase.driver("bolt://localhost:7687", auth=("username", "password"))
 #
 #     # Execute your Cypher query
 #     with driver.session() as session:
