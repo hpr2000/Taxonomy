@@ -72,9 +72,6 @@ def get_data(request):
         # Extract the data from the result
         # max_hierarchy_length = max(len(record["levels"]) for record in result)
         data = [{"Hierarchy": record["Hierarchy"], "Description": record["Description"]} for record in result]
-        max_len = 6
-        numbers_list = range(1, max_len + 1)
-        context = {'numbers_list': numbers_list}
     # Close the Neo4j driver
     driver.close()
     return HttpResponse(json.dumps({'data': data}))
